@@ -13,6 +13,8 @@ public class NetworkPlayer : MonoBehaviour
     private Transform _headRig;
     private Transform _leftHandRig;
     private Transform _rightHandRig;
+    [SerializeField] private Animator _leftHandAnimator;
+    [SerializeField] private Animator _rightHandAnimator;
 
     private void Awake()
     {
@@ -21,19 +23,49 @@ public class NetworkPlayer : MonoBehaviour
         _headRig = rig.transform.Find("Camera Offset/Main Camera");
         _leftHandRig = rig.transform.Find("LeftHand Controller");
         _rightHandRig = rig.transform.Find("RightHand Controller");
+
+        if(_photonView.IsMine)
+            foreach (var elem in GetComponentsInChildren<Renderer>())
+            {
+                elem.enabled = false;
+            }
     }
 
     private void Update()
     {
         if (_photonView.IsMine)
         {
-            head.gameObject.SetActive(false);
-            leftHand.gameObject.SetActive(false);
-            rightHand.gameObject.SetActive(false);
+            // head.gameObject.SetActive(false);
+            // leftHand.gameObject.SetActive(false);
+            // rightHand.gameObject.SetActive(false);
 
             MapPosition(head, _headRig);
             MapPosition(leftHand, _leftHandRig);
             MapPosition(rightHand, _rightHandRig);
+            
+            UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.LeftHand), _leftHandAnimator);
+            UpdateHandAnimation(InputDevices.GetDeviceAtXRNode(XRNode.RightHand), _rightHandAnimator);
+        }
+    }
+    
+    void UpdateHandAnimation(InputDevice targetDevice, Animator handAnimator)
+    {
+        if(targetDevice.TryGetFeatureValue(CommonUsages.trigger, out float triggerValue))
+        {
+            handAnimator.SetFloat("Trigger", triggerValue);
+        }
+        else
+        {
+            handAnimator.SetFloat("Trigger", 0);
+        }
+
+        if (targetDevice.TryGetFeatureValue(CommonUsages.grip, out float gripValue))
+        {
+            handAnimator.SetFloat("Grip", gripValue);
+        }
+        else
+        {
+            handAnimator.SetFloat("Grip", 0);
         }
     }
 
