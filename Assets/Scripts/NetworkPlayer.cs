@@ -19,8 +19,8 @@ public class NetworkPlayer : MonoBehaviour
         _photonView = GetComponent<PhotonView>();
         var rig = FindObjectOfType<XROrigin>();
         _headRig = rig.transform.Find("Camera Offset/Main Camera");
-        _leftHandRig = rig.transform.Find("Camera Offset/LeftHand Controller");
-        _rightHandRig = rig.transform.Find("Camera Offset/RightHand Controller");
+        _leftHandRig = rig.transform.Find("LeftHand Controller");
+        _rightHandRig = rig.transform.Find("RightHand Controller");
     }
 
     private void Update()
